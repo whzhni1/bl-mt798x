@@ -3,10 +3,10 @@ name: Build GPT Editor
 on:
   push:
     branches:
-      - master
+      - emmc
   pull_request:
     branches:
-      - master
+      - emmc
 
 jobs:
   build:
