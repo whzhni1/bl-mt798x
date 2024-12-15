@@ -1,0 +1,74 @@
+name: Build GPT Editor
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 步骤 1：检出仓库代码
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 步骤 2：安装 Python 2.7
+      - name: Install Python 2.7
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python2
+          python2 --version
+
+      # 步骤 3：安装 Python2 依赖（如 argparse）
+      - name: Install Python2 dependencies
+        run: |
+          sudo apt-get install -y python-pip
+          pip2 install argparse
+
+      # 步骤 4：创建输入目录并添加示例 JSON 文件
+      - name: Prepare input JSON files
+        working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
+        run: |
+          mkdir -p mt798x
+          echo '{"partition": "example", "size": "4MB"}' > mt798x/example.json
+          echo "Created example input JSON files in mt798x/"
+          ls -al mt798x
+
+      # 步骤 5：赋予 generate_gpt.sh 执行权限
+      - name: Make generate_gpt.sh executable
+        working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
+        run: |
+          chmod +x generate_gpt.sh
+
+      # 步骤 6：运行 generate_gpt.sh 脚本，并打印详细日志
+      - name: Generate GPT binaries
+        working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
+        run: |
+          set -x  # 打印所有执行命令
+          ./generate_gpt.sh
+          echo "Finished running generate_gpt.sh"
+          echo "Contents of gpt_output:"
+          ls -al gpt_output || echo "No gpt_output directory found"
+
+      # 步骤 7：验证 gpt_output 目录是否生成
+      - name: Verify gpt_output directory
+        working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
+        run: |
+          if [ ! -d "./gpt_output" ]; then
+            echo "Build failed: gpt_output directory not found!"
+            exit 1
+          fi
+          echo "Generated GPT binaries:"
+          ls -al gpt_output
+
+      # 步骤 8：上传 GPT 产物
+      - name: Upload GPT Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: gpt_binaries
+          path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output
