@@ -2,6 +2,12 @@ name: Build GPT Editor
 
 on:
   workflow_dispatch:
+    inputs:
+      SSH:
+        description: 'SSH connection to Actions'
+        required: true
+        default: false
+        type: boolean
   push:
     branches:
       - emmc
@@ -12,6 +18,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
 
     steps:
       # 步骤 1：检出仓库代码
@@ -78,19 +87,19 @@ jobs:
       # 步骤 9：创建 Release
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1  # 使用 v1 版本
+        uses: actions/create-release@v1
         with:
-          tag_name: v${{ github.sha }}  # 使用 Git 提交的 SHA 生成唯一标签
+          tag_name: v${{ github.sha }}
           release_name: "GPT Binaries Release"
           body: "This release contains the generated GPT binaries."
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}  # 使用新的 GitHub Token
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
 
       # 步骤 10：上传 Release 中的 GPT 二进制文件
       - name: Upload GPT files to release
-        uses: actions/upload-release-asset@v1  # 使用 v1 版本
+        uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output.zip
