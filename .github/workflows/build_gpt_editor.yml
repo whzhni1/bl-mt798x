@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write
+      contents: write  # 允许访问仓库内容
 
     steps:
       # 步骤 1：检出仓库代码
@@ -56,7 +56,7 @@ jobs:
           set -x  # 打印所有执行命令
           ./generate_gpt.sh
           echo "Finished running generate_gpt.sh"
-          echo "Contents of gpt_output:"
+          echo "Contents of gpt_output directory:"
           ls -al gpt_output || echo "No gpt_output directory found"
 
       # 步骤 7：验证 gpt_output 目录是否生成
@@ -74,38 +74,39 @@ jobs:
       - name: Create gpt_output.zip with date
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
-          # 打包之前输出 gpt_output 目录的内容
-          echo "Listing gpt_output directory before creating ZIP:"
-          ls -al gpt_output
-
           ZIP_NAME="gpt_output_$(date +%Y%m%d).zip"
           zip -r $ZIP_NAME gpt_output
-          
-          # 打包后的检查
-          echo "Listing the contents after creating ZIP:"
-          ls -al
-          
           echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
           echo "$ZIP_NAME created"
+          ls -al
 
-      # 步骤 9：创建 Release
+      # 步骤 9：验证 ZIP 文件是否已创建
+      - name: Verify gpt_output.zip creation
+        run: |
+          echo "Checking for ZIP file: ${{ env.ZIP_NAME }}"
+          ls -al ${{ env.ZIP_NAME }} || echo "ZIP file not found"
+
+      # 步骤 10：创建 Release
       - name: Create Release
         id: create_release
-        uses: softprops/action-gh-release@v1  # 使用更新版本
-        env:
-          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ github.sha }}-${{ github.run_id }}  # 使用提交SHA和运行ID生成唯一标签
-          release_name: "GPT Binaries Release"
+          name: "GPT Binaries Release"
           body: "This release contains the generated GPT binaries."
           draft: false
           prerelease: false
-
-      # 步骤 10：上传 Release 中的 GPT 二进制文件
-      - name: Upload GPT files to release
-        uses: softprops/action-gh-release@v1  # 使用更新版本
         env:
-          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 步骤 11：上传 Release 中的 GPT 二进制文件
+      - name: Upload GPT files to release
+        uses: softprops/action-gh-release@v1
         with:
-          files: ${{ env.ZIP_NAME }}  # 自动上传打包好的文件
-          tag_name: v${{ github.sha }}-${{ github.run_id }}  # 同样传递 tag_name，确保上传到正确的 Release
+          files: ${{ env.ZIP_NAME }}  # 使用环境变量传递 ZIP 文件路径
+          tag_name: v${{ github.sha }}-${{ github.run_id }}  # 为 release 创建的标签
+          token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          ZIP_NAME: ${{ env.ZIP_NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
