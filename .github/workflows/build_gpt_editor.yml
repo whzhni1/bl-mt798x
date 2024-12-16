@@ -73,7 +73,7 @@ jobs:
       - name: Create gpt_output.zip with date
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
-          ZIP_NAME="gpt_output_$(date +%Y%m%d%H%M%S).zip"  # 添加小时、分钟、秒作为时间戳
+          ZIP_NAME="gpt_output_$(date +%Y%m%d%H%M%S).zip"
           zip -r $ZIP_NAME gpt_output
           echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV  # 将变量传递给后续步骤
           echo "$ZIP_NAME created"
