@@ -46,14 +46,16 @@ jobs:
       - name: Generate GPT binaries
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
+          echo "Running generate_gpt.sh..."
           ./generate_gpt.sh
           echo "Finished running generate_gpt.sh"
-          echo "Contents of gpt_output:"
-          ls -al gpt_output || echo "No gpt_output directory found"
+          echo "Contents of gpt_output directory:"
+          ls -al gpt_output || echo "gpt_output directory not found."
 
       # 7. Verify if gpt_output directory exists and contains files
       - name: Verify GPT output directory
         run: |
+          echo "Checking if gpt_output directory exists..."
           if [ ! -d "./gpt_output" ]; then
             echo "Build failed: gpt_output directory not found!"
             exit 1
@@ -64,6 +66,7 @@ jobs:
       # 8. Zip the GPT binaries
       - name: Zip GPT binaries
         run: |
+          echo "Zipping GPT binaries..."
           cd atf-20231013-0ea67d76a/tools/dev/gpt_editor
           zip -r gpt_binaries.zip gpt_output/
           echo "Files zipped successfully."
