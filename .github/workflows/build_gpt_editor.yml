@@ -84,23 +84,22 @@ jobs:
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         with:
           tag_name: v${{ github.sha }}-${{ github.run_id }}  # 使用提交SHA和运行ID生成唯一标签
           release_name: "GPT Binaries Release"
           body: "This release contains the generated GPT binaries."
           draft: false
           prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
 
       # 步骤 10：上传 Release 中的 GPT 二进制文件
       - name: Upload GPT files to release
-        working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor  # 确保在正确目录下
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ env.ZIP_NAME }}
           asset_name: ${{ env.ZIP_NAME }}
           asset_content_type: application/zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
