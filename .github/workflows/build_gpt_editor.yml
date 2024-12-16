@@ -3,10 +3,10 @@ name: Build GPT Editor
 on:
   push:
     branches:
-      - emmc
+      - emmc  # 推送到 emmc 分支时触发
   pull_request:
     branches:
-      - emmc
+      - emmc  # 从 emmc 分支提交 PR 时触发
 
 jobs:
   build:
@@ -88,7 +88,7 @@ jobs:
 
       # 步骤 10: 上传 Release 中的 GPT 二进制文件
       - name: Upload GPT files to release
-        uses: ghp-actions/upload-release-asset@v1
+        uses: actions/upload-release-asset@v1  # 改为 GitHub 官方上传资源的 Action
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output
