@@ -103,9 +103,8 @@ jobs:
       - name: Upload GPT files to release
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{ env.ZIP_NAME }}  # 使用环境变量传递 ZIP 文件路径
+          files: ./atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output_$(date +%Y%m%d).zip  # 明确指定路径
           tag_name: v${{ github.sha }}-${{ github.run_id }}  # 为 release 创建的标签
           token: ${{ secrets.GITHUB_TOKEN }}
         env:
-          ZIP_NAME: ${{ env.ZIP_NAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
