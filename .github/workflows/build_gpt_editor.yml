@@ -2,11 +2,11 @@ name: Build GPT Editor
 
 on:
   push:
-    tags:
-      - 'v*.*.*'  # 只有标签（如 v1.0.0）触发工作流
+    branches:
+      - emmc
   pull_request:
     branches:
-      - emmc  # 处理来自 emmc 分支的 PR
+      - emmc
 
 jobs:
   build:
