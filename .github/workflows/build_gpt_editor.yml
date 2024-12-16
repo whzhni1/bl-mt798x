@@ -1,3 +1,22 @@
+Skip to content
+Navigation Menu
+whzhni1
+bl-mt798x
+
+Code
+Pull requests
+Actions
+Projects
+Wiki
+Security
+Insights
+Settings
+Build GPT Editor
+rax3000m-emmc_xr30-emmc_rootfs10240M_production10240M-gpt.json #39
+Jobs
+Run details
+Workflow file for this run
+.github/workflows/build_gpt_editor.yml at 35c41c9
 name: Build GPT Editor
 
 on:
@@ -24,13 +43,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y python2
           python2 --version
-
       # 步骤 3：安装 Python2 依赖（如 argparse）
       - name: Install Python2 dependencies
         run: |
           sudo apt-get install -y python-pip
           pip2 install argparse
-
       # 步骤 4：创建输入目录并添加示例 JSON 文件
       - name: Prepare input JSON files
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
@@ -39,13 +56,11 @@ jobs:
           echo '{"partition": "example", "size": "4MB"}' > mt798x/example.json
           echo "Created example input JSON files in mt798x/"
           ls -al mt798x
-
       # 步骤 5：赋予 generate_gpt.sh 执行权限
       - name: Make generate_gpt.sh executable
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
           chmod +x generate_gpt.sh
-
       # 步骤 6：运行 generate_gpt.sh 脚本，并打印详细日志
       - name: Generate GPT binaries
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
@@ -55,7 +70,6 @@ jobs:
           echo "Finished running generate_gpt.sh"
           echo "Contents of gpt_output:"
           ls -al gpt_output || echo "No gpt_output directory found"
-
       # 步骤 7：验证 gpt_output 目录是否生成
       - name: Verify gpt_output directory
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
@@ -66,7 +80,6 @@ jobs:
           fi
           echo "Generated GPT binaries:"
           ls -al gpt_output
-
       # 步骤 8：打包 gpt_output 为 zip 文件
       - name: Create gpt_output.zip
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
@@ -74,7 +87,6 @@ jobs:
           zip -r gpt_output.zip gpt_output
           echo "gpt_output.zip created"
           ls -al gpt_output.zip
-
       # 步骤 9：创建 Release
       - name: Create Release
         id: create_release
@@ -98,3 +110,4 @@ jobs:
           asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}  # 使用新的 GitHub Token
+rax3000m-emmc_xr30-emmc_rootfs10240M_production10240M-gpt.json · whzhni1/bl-mt798x@35c41c9 
