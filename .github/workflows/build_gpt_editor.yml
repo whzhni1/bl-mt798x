@@ -5,9 +5,8 @@ on:
   push:
     branches:
       - emmc
-    # 可选：如果希望在推送标签时创建 Release，可以添加 tags 的触发
     tags:
-      - 'v*.*.*'  # 例如 v1.0.0
+      - 'v*.*.*'  # 可选：用于标签推送时创建 Release
   pull_request:
     branches:
       - emmc
@@ -36,7 +35,6 @@ jobs:
 
       # 步骤 4：准备输入 JSON 文件
       - name: Prepare input JSON files
-        # 修正了 working-directory 的路径
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
           mkdir -p mt798x
@@ -46,14 +44,12 @@ jobs:
 
       # 步骤 5：赋予 generate_gpt.sh 执行权限
       - name: Make generate_gpt.sh executable
-        # 修正了 working-directory 的路径
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
           chmod +x generate_gpt.sh
 
       # 步骤 6：运行 generate_gpt.sh 脚本，并打印详细日志
       - name: Generate GPT binaries
-        # 修正了 working-directory 的路径
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
           set -x  # 打印所有执行命令
@@ -64,7 +60,6 @@ jobs:
 
       # 步骤 7：验证 gpt_output 目录是否生成
       - name: Verify gpt_output directory
-        # 修正了 working-directory 的路径
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
           if [ ! -d "./gpt_output" ]; then
@@ -79,7 +74,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: gpt_binaries
-          path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output/**
+          path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output/
 
       # 可选步骤：如果是标签推送，则创建 GitHub Release 并上传产物
       - name: Create GitHub Release
@@ -103,10 +98,3 @@ jobs:
           asset_path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output/
           asset_name: gpt_binaries.zip
           asset_content_type: application/zip
-
-      # 可选步骤：将 gpt_output 压缩为 zip 文件以便上传到 Release
-      - name: Zip GPT Binaries
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          cd atf-20231013-0ea67d76a/tools/dev/gpt_editor
-          zip -r gpt_binaries.zip gpt_output
