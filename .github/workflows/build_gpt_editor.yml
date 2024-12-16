@@ -2,11 +2,11 @@ name: Build GPT Editor
 
 on:
   push:
-    branches:
-      - emmc
+    tags:
+      - 'v*.*.*'  # 只有标签（如 v1.0.0）触发工作流
   pull_request:
     branches:
-      - emmc
+      - emmc  # 处理来自 emmc 分支的 PR
 
 jobs:
   build:
@@ -66,7 +66,7 @@ jobs:
           echo "Generated GPT binaries:"
           ls -al gpt_output
 
-      # 步骤 8：上传 GPT 产物作为 artifact
+      # 步骤 8：上传 GPT 产物
       - name: Upload GPT Artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -75,21 +75,22 @@ jobs:
 
       # 步骤 9: 创建 Release
       - name: Create Release
-       id: create_release
-       uses: actions/create-release@v1
-       with:
-        tag_name: ${{ github.ref_name }}  # 使用 GitHub 的 ref_name（即标签名）来代替 refs/heads/emmc
-        release_name: "GPT Binaries Release"
-        body: "This release contains the generated GPT binaries."
-        draft: false
-        prerelease: false
-       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
-      # 步骤 10: 将文件附加到 Release
-      - name: Upload files to Release
-        uses: ncipollo/release-action@v1
+        id: create_release
+        uses: actions/create-release@v1
         with:
-          artifacts: "atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output/*"
-          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ github.ref_name }}  # 使用 Git 标签名称
+          release_name: "GPT Binaries Release"
+          body: "This release contains the generated GPT binaries."
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 步骤 10: 上传 Release 中的 GPT 二进制文件
+      - name: Upload GPT files to release
+        uses: ghp-actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output
+          asset_name: gpt_output.zip
+          asset_content_type: application/zip
