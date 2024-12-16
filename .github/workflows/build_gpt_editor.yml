@@ -100,3 +100,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         with:
           files: ${{ env.ZIP_NAME }}  # 自动上传打包好的文件
+          tag_name: v${{ github.sha }}-${{ github.run_id }}  # 同样传递 tag_name，确保上传到正确的 Release
