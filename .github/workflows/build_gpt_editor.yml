@@ -2,11 +2,10 @@ name: Build GPT Editor
 
 on:
   push:
-    tags:
-      - 'v*.*.*'  # 仅在推送符合 v*.*.* 格式的标签时触发
-  pull_request:
     branches:
       - emmc
+    tags:
+      - 'v*.*.*'  # Only trigger for tag pushes
 
 jobs:
   build:
