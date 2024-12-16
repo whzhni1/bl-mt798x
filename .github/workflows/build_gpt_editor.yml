@@ -70,17 +70,23 @@ jobs:
           echo "Generated GPT binaries:"
           ls -al gpt_output
 
-      # 步骤 8：调试当前日期和时间
+      # 步骤 8：打印当前的日期和时间
       - name: Debug current date and time
         run: |
           echo "Current date and time is: $(date +'%Y%m%d%H%M%S')"
 
-      # 步骤 9：创建 gpt_output.zip 文件，并加上日期
+      # 步骤 9：创建 gpt_output.zip 文件，并加上日期和时间
       - name: Create gpt_output.zip with date
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
-          # 使用调试输出的日期时间格式
-          ZIP_NAME="gpt_output_$(date +'%Y%m%d%H%M%S').zip"
+          # 设置环境变量，获取当前日期和时间
+          export CURRENT_DATE=$(date +'%Y%m%d%H%M%S')
+          
+          # 输出调试信息查看 CURRENT_DATE 是否正确
+          echo "Current date and time: $CURRENT_DATE"
+          
+          # 使用环境变量创建 ZIP 文件名
+          ZIP_NAME="gpt_output_${CURRENT_DATE}.zip"
           
           # 输出调试信息查看 ZIP_NAME 是否正确
           echo "ZIP_NAME is: $ZIP_NAME"
