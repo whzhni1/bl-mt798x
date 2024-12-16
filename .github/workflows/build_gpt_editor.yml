@@ -76,6 +76,10 @@ jobs:
           release_name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
+        id: create_release
+        run: |
+          echo "Creating release for tag ${GITHUB_REF}"
+          echo "Release URL: ${{ steps.create_release.outputs.upload_url }}"
 
       # 步骤 9：上传 GPT 二进制文件到 GitHub Release
       - name: Upload GPT binaries to Release
@@ -88,3 +92,5 @@ jobs:
           asset_path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output/
           asset_name: gpt_binaries.zip
           asset_content_type: application/zip
+        run: |
+          echo "Uploading files to release..."
