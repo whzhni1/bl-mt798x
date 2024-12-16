@@ -83,7 +83,7 @@ jobs:
       # 步骤 9：创建 Release
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1  # 使用更新的版本
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         with:
@@ -95,8 +95,7 @@ jobs:
 
       # 步骤 10：上传 Release 中的 GPT 二进制文件
       - name: Upload GPT files to release
-        working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor  # 确保在正确目录下
-        uses: actions/upload-release-asset@v1
+        uses: softprops/action-gh-release@v1  # 使用更新的版本
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         with:
