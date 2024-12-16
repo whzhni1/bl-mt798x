@@ -17,20 +17,24 @@ jobs:
       contents: write
 
     steps:
+      # 步骤 1：检出仓库代码
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 步骤 2：安装 Python 2.7
       - name: Install Python 2.7
         run: |
           sudo apt-get update
           sudo apt-get install -y python2
           python2 --version
 
+      # 步骤 3：安装 Python2 依赖（如 argparse）
       - name: Install Python2 dependencies
         run: |
           sudo apt-get install -y python-pip
           pip2 install argparse
 
+      # 步骤 4：创建输入目录并添加示例 JSON 文件
       - name: Prepare input JSON files
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
@@ -39,20 +43,23 @@ jobs:
           echo "Created example input JSON files in mt798x/"
           ls -al mt798x
 
+      # 步骤 5：赋予 generate_gpt.sh 执行权限
       - name: Make generate_gpt.sh executable
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
           chmod +x generate_gpt.sh
 
+      # 步骤 6：运行 generate_gpt.sh 脚本，并打印详细日志
       - name: Generate GPT binaries
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
-          set -x
+          set -x  # 打印所有执行命令
           ./generate_gpt.sh
           echo "Finished running generate_gpt.sh"
           echo "Contents of gpt_output:"
           ls -al gpt_output || echo "No gpt_output directory found"
 
+      # 步骤 7：验证 gpt_output 目录是否生成
       - name: Verify gpt_output directory
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
@@ -63,6 +70,7 @@ jobs:
           echo "Generated GPT binaries:"
           ls -al gpt_output
 
+      # 步骤 8：打包 gpt_output 为 zip 文件，并加上日期
       - name: Create gpt_output.zip with date
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
@@ -70,29 +78,23 @@ jobs:
           zip -r $ZIP_NAME gpt_output
           echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
           echo "$ZIP_NAME created"
-          ls -al $ZIP_NAME
-
-      - name: Print current directory and files
-        run: |
-          echo "Current directory:"
-          pwd
-          echo "Files in current directory:"
           ls -al
 
+      # 步骤 9：创建 Release
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         with:
-          tag_name: v${{ github.sha }}-${{ github.run_id }}
+          tag_name: v${{ github.sha }}-${{ github.run_id }}  # 使用提交SHA和运行ID生成唯一标签
           release_name: "GPT Binaries Release"
           body: "This release contains the generated GPT binaries."
           draft: false
           prerelease: false
 
+      # 步骤 10：上传 Release 中的 GPT 二进制文件
       - name: Upload GPT files to release
-        working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
