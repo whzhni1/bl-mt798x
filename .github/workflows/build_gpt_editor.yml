@@ -77,7 +77,14 @@ jobs:
           draft: false
           prerelease: false
 
-      # Step 9: Upload GPT binaries to GitHub Release (only for tag pushes)
+      # Step 9: Zip the output files (before uploading to GitHub release)
+      - name: Zip GPT binaries
+        run: |
+          cd atf-20231013-0ea67d76a/tools/dev/gpt_editor
+          zip -r gpt_binaries.zip gpt_output/
+          echo "Files zipped successfully."
+
+      # Step 10: Upload GPT binaries to GitHub Release (only for tag pushes)
       - name: Upload GPT binaries to Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-release-asset@v1
@@ -85,10 +92,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output/
+          asset_path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_binaries.zip
           asset_name: gpt_binaries.zip
           asset_content_type: application/zip
-        run: |
-          echo "Uploading files to release..."
-          zip -r gpt_binaries.zip gpt_output/
-          echo "Files zipped and ready to be uploaded."
