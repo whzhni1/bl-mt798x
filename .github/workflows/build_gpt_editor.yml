@@ -3,7 +3,7 @@ name: Build GPT Editor
 on:
   push:
     tags:
-      - 'v*.*.*'  # 仅在推送符合 v*.*.* 格式的标签时触发
+      - emmc
   pull_request:
     branches:
       - emmc
