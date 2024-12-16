@@ -91,7 +91,7 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
 
       # 步骤 11: 上传 Release 中的 GPT 二进制文件
       - name: Upload GPT files to release
