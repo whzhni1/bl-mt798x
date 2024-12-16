@@ -46,15 +46,18 @@ jobs:
       - name: Generate GPT binaries
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
+          echo "Current directory before running generate_gpt.sh:"
+          pwd
+          ls -al
           echo "Running generate_gpt.sh..."
           ./generate_gpt.sh
           echo "Finished running generate_gpt.sh"
-          echo "Contents of current directory:"
+          echo "Contents of current directory after running generate_gpt.sh:"
           ls -al
-          echo "Contents of gpt_output directory (if exists):"
+          echo "Checking if gpt_output directory exists..."
           ls -al gpt_output || echo "gpt_output directory not found."
 
-      # 7. Verify if gpt_output directory exists and contains files
+      # 7. Verify GPT output directory
       - name: Verify GPT output directory
         run: |
           echo "Checking if gpt_output directory exists..."
