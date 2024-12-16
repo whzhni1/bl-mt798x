@@ -66,7 +66,15 @@ jobs:
           echo "Generated GPT binaries:"
           ls -al gpt_output
 
-      # 步骤 8：创建 Release
+      # 步骤 8：打包 gpt_output 为 zip 文件
+      - name: Create gpt_output.zip
+        working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
+        run: |
+          zip -r gpt_output.zip gpt_output
+          echo "gpt_output.zip created"
+          ls -al gpt_output.zip
+
+      # 步骤 9：创建 Release
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1  # 使用 v1 版本
@@ -79,7 +87,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}  # 使用新的 GitHub Token
 
-      # 步骤 9：上传 Release 中的 GPT 二进制文件
+      # 步骤 10：上传 Release 中的 GPT 二进制文件
       - name: Upload GPT files to release
         uses: actions/upload-release-asset@v1  # 使用 v1 版本
         with:
