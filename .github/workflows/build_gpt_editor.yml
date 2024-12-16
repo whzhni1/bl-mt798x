@@ -41,7 +41,6 @@ jobs:
           mkdir -p mt798x
           echo '{"partition": "example", "size": "4MB"}' > mt798x/example.json
           echo "Created example input JSON files in mt798x/"
-          ls -al mt798x
 
       # 步骤 5：赋予 generate_gpt.sh 执行权限
       - name: Make generate_gpt.sh executable
@@ -74,10 +73,9 @@ jobs:
       - name: Create gpt_output.zip with date
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
-          ZIP_NAME="gpt_output_$(date +%Y%m%d_%H%M%S).zip
-          echo "Generated ZIP file name: $ZIP_NAME"
-          zip -r "$ZIP_NAME" gpt_output
-          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
+          ZIP_NAME="gpt_output_$(date +%Y%m%d%H%M%S).zip"  # 添加小时、分钟、秒作为时间戳
+          zip -r $ZIP_NAME gpt_output
+          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV  # 将变量传递给后续步骤
           echo "$ZIP_NAME created"
           ls -al
 
@@ -86,8 +84,6 @@ jobs:
         run: |
           echo "Checking for ZIP file: ${{ env.ZIP_NAME }}"
           ls -al atf-20231013-0ea67d76a/tools/dev/gpt_editor/${{ env.ZIP_NAME }} || echo "ZIP file not found"
-          # 调试输出
-          echo "Current Date and Time: $(date +%Y%m%d_%H%M%S)"
 
       # 步骤 10：创建 Release
       - name: Create Release
