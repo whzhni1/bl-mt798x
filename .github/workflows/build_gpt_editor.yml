@@ -1,7 +1,13 @@
 name: Build GPT Editor
 
 on:
-  workflow_dispatch:  # 允许手动触发工作流
+  workflow_dispatch:
+  push:
+    branches:
+      - emmc
+  pull_request:
+    branches:
+      - emmc
 
 jobs:
   build:
