@@ -36,7 +36,8 @@ jobs:
 
       # 步骤 4：准备输入 JSON 文件
       - name: Prepare input JSON files
-        working-directory: bl-mt798x/atf-20231013-0ea67d76a/tools/dev/gpt_editor  # 修正路径
+        # 修正了 working-directory 的路径
+        working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
           mkdir -p mt798x
           echo '{"partition": "example", "size": "4MB"}' > mt798x/example.json
@@ -45,13 +46,15 @@ jobs:
 
       # 步骤 5：赋予 generate_gpt.sh 执行权限
       - name: Make generate_gpt.sh executable
-        working-directory: bl-mt798x/atf-20231013-0ea67d76a/tools/dev/gpt_editor  # 修正路径
+        # 修正了 working-directory 的路径
+        working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
           chmod +x generate_gpt.sh
 
       # 步骤 6：运行 generate_gpt.sh 脚本，并打印详细日志
       - name: Generate GPT binaries
-        working-directory: bl-mt798x/atf-20231013-0ea67d76a/tools/dev/gpt_editor  # 修正路径
+        # 修正了 working-directory 的路径
+        working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
           set -x  # 打印所有执行命令
           ./generate_gpt.sh
@@ -61,7 +64,8 @@ jobs:
 
       # 步骤 7：验证 gpt_output 目录是否生成
       - name: Verify gpt_output directory
-        working-directory: bl-mt798x/atf-20231013-0ea67d76a/tools/dev/gpt_editor  # 修正路径
+        # 修正了 working-directory 的路径
+        working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
           if [ ! -d "./gpt_output" ]; then
             echo "Build failed: gpt_output directory not found!"
@@ -75,7 +79,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: gpt_binaries
-          path: bl-mt798x/atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output/**
+          path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output/**
 
       # 可选步骤：如果是标签推送，则创建 GitHub Release 并上传产物
       - name: Create GitHub Release
@@ -96,7 +100,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: bl-mt798x/atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output/
+          asset_path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output/
           asset_name: gpt_binaries.zip
           asset_content_type: application/zip
 
@@ -104,5 +108,5 @@ jobs:
       - name: Zip GPT Binaries
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          cd bl-mt798x/atf-20231013-0ea67d76a/tools/dev/gpt_editor
+          cd atf-20231013-0ea67d76a/tools/dev/gpt_editor
           zip -r gpt_binaries.zip gpt_output
