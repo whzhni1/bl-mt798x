@@ -74,9 +74,9 @@ jobs:
       - name: Create gpt_output.zip with date
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
-          ZIP_NAME="gpt_output_$(date +%Y%m%d).zip"
+          ZIP_NAME="gpt_output_$(date +%Y%m%d_%H%M%S).zip"  # 包含精确的时间戳
           zip -r $ZIP_NAME gpt_output
-          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
+          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV  # 将 ZIP 文件名存储到环境变量
           echo "$ZIP_NAME created"
           ls -al
 
@@ -84,7 +84,7 @@ jobs:
       - name: Verify gpt_output.zip creation
         run: |
           echo "Checking for ZIP file: ${{ env.ZIP_NAME }}"
-          ls -al ${{ env.ZIP_NAME }} || echo "ZIP file not found"
+          ls -al atf-20231013-0ea67d76a/tools/dev/gpt_editor/${{ env.ZIP_NAME }} || echo "ZIP file not found"
 
       # 步骤 10：创建 Release
       - name: Create Release
@@ -92,7 +92,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ github.sha }}-${{ github.run_id }}  # 使用提交SHA和运行ID生成唯一标签
-          name: "GPT Binaries Release"
+          name: "GPT Binaries Release"  # 使用 'name' 而不是 'release_name'
           body: "This release contains the generated GPT binaries."
           draft: false
           prerelease: false
@@ -103,8 +103,6 @@ jobs:
       - name: Upload GPT files to release
         uses: softprops/action-gh-release@v1
         with:
-          files: ./atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output_$(date +%Y%m%d).zip  # 明确指定路径
-          tag_name: v${{ github.sha }}-${{ github.run_id }}  # 为 release 创建的标签
-          token: ${{ secrets.GITHUB_TOKEN }}
+          files: atf-20231013-0ea67d76a/tools/dev/gpt_editor/${{ env.ZIP_NAME }}  # 指定相对路径
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
