@@ -4,97 +4,91 @@ on:
   push:
     branches:
       - emmc
-    tags:
-      - 'v*.*.*'  # Only trigger for tag pushes
+  pull_request:
+    branches:
+      - emmc
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repository
+      # 步骤 1：检出仓库代码
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Install Python 2.7 and pip
-      - name: Install Python 2.7 and pip
+      # 步骤 2：安装 Python 2.7
+      - name: Install Python 2.7
         run: |
           sudo apt-get update
-          sudo apt-get install -y python2 python-pip
+          sudo apt-get install -y python2
           python2 --version
-          pip2 --version
 
-      # 3. Install Python dependencies
-      - name: Install Python dependencies
-        run: pip2 install argparse
+      # 步骤 3：安装 Python2 依赖（如 argparse）
+      - name: Install Python2 dependencies
+        run: |
+          sudo apt-get install -y python-pip
+          pip2 install argparse
 
-      # 4. Prepare input JSON files
+      # 步骤 4：创建输入目录并添加示例 JSON 文件
       - name: Prepare input JSON files
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
-          echo "Creating input JSON files..."
           mkdir -p mt798x
           echo '{"partition": "example", "size": "4MB"}' > mt798x/example.json
-          ls -al mt798x  # 显示文件夹内容，确认文件已创建
+          echo "Created example input JSON files in mt798x/"
+          ls -al mt798x
 
-      # 5. Make generate_gpt.sh executable
+      # 步骤 5：赋予 generate_gpt.sh 执行权限
       - name: Make generate_gpt.sh executable
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
-        run: chmod +x generate_gpt.sh
+        run: |
+          chmod +x generate_gpt.sh
 
-      # 6. Run generate_gpt.sh script
-      - name: Run generate_gpt.sh script
+      # 步骤 6：运行 generate_gpt.sh 脚本，并打印详细日志
+      - name: Generate GPT binaries
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
-          echo "Current directory before running generate_gpt.sh:"
-          pwd  # 输出当前工作目录
-          ls -al  # 显示当前目录的文件
-          echo "Running generate_gpt.sh..."
-          ./generate_gpt.sh  # 运行脚本
+          set -x  # 打印所有执行命令
+          ./generate_gpt.sh
           echo "Finished running generate_gpt.sh"
-          echo "Directory contents after running generate_gpt.sh:"
-          ls -al  # 再次显示目录内容，确认 gpt_output 是否存在
-          
-      # 7. Verify if gpt_output directory exists
-      - name: Verify GPT output directory
+          echo "Contents of gpt_output:"
+          ls -al gpt_output || echo "No gpt_output directory found"
+
+      # 步骤 7：验证 gpt_output 目录是否生成
+      - name: Verify gpt_output directory
+        working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
-          echo "Checking if gpt_output directory exists..."
           if [ ! -d "./gpt_output" ]; then
             echo "Build failed: gpt_output directory not found!"
             exit 1
           fi
           echo "Generated GPT binaries:"
-          ls -al gpt_output  # 显示 gpt_output 文件夹的内容
+          ls -al gpt_output
 
-      # 8. Zip the GPT binaries
-      - name: Zip GPT binaries
-        run: |
-          echo "Zipping GPT binaries..."
-          cd atf-20231013-0ea67d76a/tools/dev/gpt_editor
-          zip -r gpt_binaries.zip gpt_output/
-          echo "Files zipped successfully."
+      # 步骤 8：上传 GPT 产物作为 artifact
+      - name: Upload GPT Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: gpt_binaries
+          path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output
 
-      # 9. Create GitHub Release (only for tags)
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
+      # 步骤 9: 创建 Release
+      - name: Create Release
         id: create_release
         uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
+          tag_name: ${{ github.ref }}
+          release_name: "GPT Binaries Release"
+          body: "This release contains the generated GPT binaries."
           draft: false
           prerelease: false
-
-      # 10. Upload the zipped GPT binaries to the release
-      - name: Upload GPT binaries to Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 步骤 10: 将文件附加到 Release
+      - name: Upload files to Release
+        uses: ncipollo/release-action@v1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_binaries.zip
-          asset_name: gpt_binaries.zip
-          asset_content_type: application/zip
+          artifacts: "atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output/*"
+          token: ${{ secrets.GITHUB_TOKEN }}
