@@ -28,36 +28,34 @@ jobs:
       - name: Install Python dependencies
         run: pip2 install argparse
 
-      # 4. Create input JSON files
+      # 4. Prepare input JSON files
       - name: Prepare input JSON files
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
+          echo "Creating input JSON files..."
           mkdir -p mt798x
           echo '{"partition": "example", "size": "4MB"}' > mt798x/example.json
-          echo "Created example input JSON files in mt798x/"
-          ls -al mt798x
+          ls -al mt798x  # 显示文件夹内容，确认文件已创建
 
       # 5. Make generate_gpt.sh executable
       - name: Make generate_gpt.sh executable
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: chmod +x generate_gpt.sh
 
-      # 6. Run the generate_gpt.sh script to generate GPT binaries
-      - name: Generate GPT binaries
+      # 6. Run generate_gpt.sh script
+      - name: Run generate_gpt.sh script
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
           echo "Current directory before running generate_gpt.sh:"
           pwd  # 输出当前工作目录
-          ls -al  # 输出当前目录下的所有文件和文件夹
+          ls -al  # 显示当前目录的文件
           echo "Running generate_gpt.sh..."
           ./generate_gpt.sh  # 运行脚本
           echo "Finished running generate_gpt.sh"
-          echo "Contents of current directory after running generate_gpt.sh:"
-          ls -al  # 再次输出当前目录，查看是否有 `gpt_output` 目录
-          echo "Checking if gpt_output directory exists..."
-          ls -al gpt_output || echo "gpt_output directory not found."
-
-      # 7. Verify GPT output directory
+          echo "Directory contents after running generate_gpt.sh:"
+          ls -al  # 再次显示目录内容，确认 gpt_output 是否存在
+          
+      # 7. Verify if gpt_output directory exists
       - name: Verify GPT output directory
         run: |
           echo "Checking if gpt_output directory exists..."
@@ -66,7 +64,7 @@ jobs:
             exit 1
           fi
           echo "Generated GPT binaries:"
-          ls -al gpt_output
+          ls -al gpt_output  # 显示 gpt_output 文件夹的内容
 
       # 8. Zip the GPT binaries
       - name: Zip GPT binaries
@@ -75,7 +73,6 @@ jobs:
           cd atf-20231013-0ea67d76a/tools/dev/gpt_editor
           zip -r gpt_binaries.zip gpt_output/
           echo "Files zipped successfully."
-          ls -al gpt_binaries.zip
 
       # 9. Create GitHub Release (only for tags)
       - name: Create GitHub Release
