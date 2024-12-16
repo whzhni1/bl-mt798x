@@ -47,13 +47,13 @@ jobs:
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
           echo "Current directory before running generate_gpt.sh:"
-          pwd
-          ls -al
+          pwd  # 输出当前工作目录
+          ls -al  # 输出当前目录下的所有文件和文件夹
           echo "Running generate_gpt.sh..."
-          ./generate_gpt.sh
+          ./generate_gpt.sh  # 运行脚本
           echo "Finished running generate_gpt.sh"
           echo "Contents of current directory after running generate_gpt.sh:"
-          ls -al
+          ls -al  # 再次输出当前目录，查看是否有 `gpt_output` 目录
           echo "Checking if gpt_output directory exists..."
           ls -al gpt_output || echo "gpt_output directory not found."
 
