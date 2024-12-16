@@ -41,6 +41,7 @@ jobs:
           mkdir -p mt798x
           echo '{"partition": "example", "size": "4MB"}' > mt798x/example.json
           echo "Created example input JSON files in mt798x/"
+          ls -al mt798x
 
       # 步骤 5：赋予 generate_gpt.sh 执行权限
       - name: Make generate_gpt.sh executable
@@ -69,43 +70,51 @@ jobs:
           echo "Generated GPT binaries:"
           ls -al gpt_output
 
-      # 步骤 8：打包 gpt_output 为 zip 文件，并加上日期
+      # 步骤 8：调试当前日期和时间
+      - name: Debug current date and time
+        run: |
+          echo "Current date and time is: $(date +'%Y%m%d%H%M%S')"
+
+      # 步骤 9：创建 gpt_output.zip 文件，并加上日期
       - name: Create gpt_output.zip with date
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
-          ZIP_NAME="gpt_output_$(date +%Y%m%d%H%M%S).zip"
+          # 使用调试输出的日期时间格式
+          ZIP_NAME="gpt_output_$(date +'%Y%m%d%H%M%S').zip"
+          
+          # 输出调试信息查看 ZIP_NAME 是否正确
+          echo "ZIP_NAME is: $ZIP_NAME"
+          
+          # 创建 zip 文件
           zip -r $ZIP_NAME gpt_output
-          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV  # 将变量传递给后续步骤
+          
+          # 输出文件是否已创建
           echo "$ZIP_NAME created"
           ls -al
 
-      # 步骤 9：验证 ZIP 文件是否已创建
+      # 步骤 10：验证 ZIP 文件是否已创建
       - name: Verify gpt_output.zip creation
         run: |
           echo "Checking for ZIP file: ${{ env.ZIP_NAME }}"
           ls -al atf-20231013-0ea67d76a/tools/dev/gpt_editor/${{ env.ZIP_NAME }} || echo "ZIP file not found"
 
-      # 步骤 10：创建 Release
+      # 步骤 11：创建 Release
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ github.sha }}-${{ github.run_id }}  # 使用提交SHA和运行ID生成唯一标签
-          release_name: "GPT Binaries Release"  # 使用 'name' 而不是 'release_name'
+          name: "GPT Binaries Release"  # 使用 'name' 而不是 'release_name'
           body: "This release contains the generated GPT binaries."
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ZIP_NAME: ${{ env.ZIP_NAME }}  # 确保将 ZIP_NAME 环境变量传递给后续步骤
 
-      # 步骤 11：上传 Release 中的 GPT 二进制文件
+      # 步骤 12：上传 Release 中的 GPT 二进制文件
       - name: Upload GPT files to release
-        uses: actions/upload-release-asset@v1
+        uses: softprops/action-gh-release@v1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}  # 使用创建的 Release URL
-          asset_path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/${{ env.ZIP_NAME }}  # 确保使用环境变量中的文件路径
-          asset_name: ${{ env.ZIP_NAME }}  # 文件名应该也是带有日期的
-          asset_content_type: application/zip
+          files: atf-20231013-0ea67d76a/tools/dev/gpt_editor/${{ env.ZIP_NAME }}  # 指定相对路径
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
