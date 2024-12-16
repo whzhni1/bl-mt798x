@@ -36,22 +36,22 @@ jobs:
 
       # 步骤 4：准备输入 JSON 文件
       - name: Prepare input JSON files
-        working-directory: bl-mt798x/atf-20231013-0ea67d76a/tools/dev/gpt_editor
+        working-directory: bl-mt798x/atf-20231013-0ea67d76a/tools/dev/gpt_editor  # 修正路径
         run: |
-          mkdir -p gpt_output/mt798x
-          echo '{"partition": "example", "size": "4MB"}' > gpt_output/mt798x/example.json
-          echo "Created example input JSON files in gpt_output/mt798x/"
-          ls -al gpt_output/mt798x
+          mkdir -p mt798x
+          echo '{"partition": "example", "size": "4MB"}' > mt798x/example.json
+          echo "Created example input JSON files in mt798x/"
+          ls -al mt798x
 
       # 步骤 5：赋予 generate_gpt.sh 执行权限
       - name: Make generate_gpt.sh executable
-        working-directory: bl-mt798x/atf-20231013-0ea67d76a/tools/dev/gpt_editor
+        working-directory: bl-mt798x/atf-20231013-0ea67d76a/tools/dev/gpt_editor  # 修正路径
         run: |
           chmod +x generate_gpt.sh
 
       # 步骤 6：运行 generate_gpt.sh 脚本，并打印详细日志
       - name: Generate GPT binaries
-        working-directory: bl-mt798x/atf-20231013-0ea67d76a/tools/dev/gpt_editor
+        working-directory: bl-mt798x/atf-20231013-0ea67d76a/tools/dev/gpt_editor  # 修正路径
         run: |
           set -x  # 打印所有执行命令
           ./generate_gpt.sh
@@ -61,7 +61,7 @@ jobs:
 
       # 步骤 7：验证 gpt_output 目录是否生成
       - name: Verify gpt_output directory
-        working-directory: bl-mt798x/atf-20231013-0ea67d76a/tools/dev/gpt_editor
+        working-directory: bl-mt798x/atf-20231013-0ea67d76a/tools/dev/gpt_editor  # 修正路径
         run: |
           if [ ! -d "./gpt_output" ]; then
             echo "Build failed: gpt_output directory not found!"
