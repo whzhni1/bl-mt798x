@@ -1,12 +1,11 @@
 name: Build GPT Editor
 
-# 触发条件：推送到 emmc 分支或创建 PR 针对 emmc 分支
 on:
   push:
     branches:
       - emmc
     tags:
-      - 'v*.*.*'  # 可选：用于标签推送时创建 Release
+      - 'v*.*.*'  # 只在标签推送时创建 Release
   pull_request:
     branches:
       - emmc
@@ -76,7 +75,7 @@ jobs:
           name: gpt_binaries
           path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output/
 
-      # 可选步骤：如果是标签推送，则创建 GitHub Release 并上传产物
+      # 步骤 9：如果是标签推送，则创建 GitHub Release
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/create-release@v1
@@ -88,6 +87,7 @@ jobs:
           draft: false
           prerelease: false
 
+      # 步骤 10：上传 Release 产物
       - name: Upload Release Assets
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-release-asset@v1
