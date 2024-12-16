@@ -75,16 +75,17 @@ jobs:
 
       # 步骤 9: 创建 Release
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: "GPT Binaries Release"
-          body: "This release contains the generated GPT binaries."
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+       id: create_release
+       uses: actions/create-release@v1
+       with:
+        tag_name: ${{ github.ref_name }}  # 使用 GitHub 的 ref_name（即标签名）来代替 refs/heads/emmc
+        release_name: "GPT Binaries Release"
+        body: "This release contains the generated GPT binaries."
+        draft: false
+        prerelease: false
+       env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       # 步骤 10: 将文件附加到 Release
       - name: Upload files to Release
