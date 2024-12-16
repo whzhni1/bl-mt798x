@@ -1,6 +1,7 @@
 name: Build GPT Editor
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - emmc
