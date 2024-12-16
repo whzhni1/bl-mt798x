@@ -3,6 +3,11 @@ name: Build GPT Editor
 on:
   workflow_dispatch:
     inputs:
+      NO_DOCKERMAN:
+        description: 'Not build luci-app-dockerman'
+        required: true
+        default: false
+        type: boolean
       SSH:
         description: 'SSH connection to Actions'
         required: true
@@ -70,13 +75,15 @@ jobs:
           echo "Generated GPT binaries:"
           ls -al gpt_output
 
-      # 步骤 8：打包 gpt_output 为 zip 文件
-      - name: Create gpt_output.zip
+      # 步骤 8：打包 gpt_output 为 zip 文件，并加上日期
+      - name: Create gpt_output.zip with date
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
-          zip -r gpt_output.zip gpt_output
-          echo "gpt_output.zip created"
-          ls -al gpt_output.zip
+          ZIP_NAME="gpt_output_$(date +%Y%m%d).zip"
+          zip -r $ZIP_NAME gpt_output
+          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
+          echo "$ZIP_NAME created"
+          ls -al $ZIP_NAME
 
       # 步骤 9：创建 Release
       - name: Create Release
@@ -96,8 +103,8 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output.zip
-          asset_name: gpt_output.zip
+          asset_path: ${{ env.ZIP_NAME }}
+          asset_name: ${{ env.ZIP_NAME }}
           asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
