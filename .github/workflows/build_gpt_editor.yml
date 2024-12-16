@@ -13,20 +13,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout code
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 2. Install Python 2.7
       - name: Install Python 2.7
         run: |
           sudo apt-get update
           sudo apt-get install -y python2
           python2 --version
 
+      # 3. Install Python2 dependencies
       - name: Install Python2 dependencies
         run: |
           sudo apt-get install -y python-pip
           pip2 install argparse
 
+      # 4. Prepare input JSON files (this can be omitted if not necessary)
       - name: Prepare input JSON files
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
@@ -35,11 +39,12 @@ jobs:
           echo "Created example input JSON files in mt798x/"
           ls -al mt798x
 
+      # 5. Make generate_gpt.sh executable
       - name: Make generate_gpt.sh executable
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
-        run: |
-          chmod +x generate_gpt.sh
+        run: chmod +x generate_gpt.sh
 
+      # 6. Run the script to generate GPT binaries
       - name: Generate GPT binaries
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
@@ -49,6 +54,7 @@ jobs:
           echo "Contents of gpt_output:"
           ls -al gpt_output || echo "No gpt_output directory found"
 
+      # 7. Verify gpt_output directory exists
       - name: Verify gpt_output directory
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
@@ -59,6 +65,7 @@ jobs:
           echo "Generated GPT binaries:"
           ls -al gpt_output
 
+      # 8. Zip the GPT binaries
       - name: Zip GPT binaries
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
@@ -66,6 +73,7 @@ jobs:
           echo "Files zipped successfully."
           ls -al gpt_binaries.zip
 
+      # 9. Create GitHub Release
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         id: create_release
@@ -78,10 +86,12 @@ jobs:
           draft: false
           prerelease: false
 
+      # 10. Debug Create GitHub Release (Output upload URL)
       - name: Debug Create GitHub Release
         run: |
           echo "Upload URL: ${{ steps.create_release.outputs.upload_url }}"
 
+      # 11. Upload GPT binaries to Release
       - name: Upload GPT binaries to Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-release-asset@v1
