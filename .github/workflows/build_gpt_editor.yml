@@ -74,11 +74,19 @@ jobs:
       - name: Create gpt_output.zip with date
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
+          # 打包之前输出 gpt_output 目录的内容
+          echo "Listing gpt_output directory before creating ZIP:"
+          ls -al gpt_output
+
           ZIP_NAME="gpt_output_$(date +%Y%m%d).zip"
           zip -r $ZIP_NAME gpt_output
+          
+          # 打包后的检查
+          echo "Listing the contents after creating ZIP:"
+          ls -al
+          
           echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
           echo "$ZIP_NAME created"
-          ls -al
 
       # 步骤 9：创建 Release
       - name: Create Release
@@ -100,3 +108,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         with:
           files: ${{ env.ZIP_NAME }}  # 自动上传打包好的文件
+          tag_name: v${{ github.sha }}-${{ github.run_id }}  # 同样传递 tag_name，确保上传到正确的 Release
