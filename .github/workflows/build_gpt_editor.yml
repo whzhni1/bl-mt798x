@@ -91,21 +91,25 @@ jobs:
 
       # 步骤 10：创建 Release
       - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v${{ github.sha }}-${{ github.run_id }}  # 使用提交SHA和运行ID生成唯一标签
-          name: "GPT Binaries Release"  # 使用 'name' 而不是 'release_name'
-          body: "This release contains the generated GPT binaries."
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          id: create_release
+          uses: actions/create-release@v1
+          with:
+            tag_name: v${{ github.sha }}-${{ github.run_id }}  # 使用提交SHA和运行ID生成唯一标签
+            release_name: "GPT Binaries Release"  # 使用 'name' 而不是 'release_name'
+            body: "This release contains the generated GPT binaries."
+            draft: false
+            prerelease: false
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            ZIP_NAME: ${{ env.ZIP_NAME }}  # 确保将 ZIP_NAME 环境变量传递给后续步骤
 
       # 步骤 11：上传 Release 中的 GPT 二进制文件
       - name: Upload GPT files to release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: atf-20231013-0ea67d76a/tools/dev/gpt_editor/${{ env.ZIP_NAME }}  # 指定相对路径
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          uses: actions/upload-release-asset@v1
+          with:
+                upload_url: ${{ steps.create_release.outputs.upload_url }}  # 使用创建的 Release URL
+                asset_path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/${{ env.ZIP_NAME }}  # 确保使用环境变量中的文件路径
+                asset_name: ${{ env.ZIP_NAME }}  # 文件名应该也是带有日期的
+                asset_content_type: application/zip
+            env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
