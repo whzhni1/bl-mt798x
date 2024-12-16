@@ -49,7 +49,9 @@ jobs:
           echo "Running generate_gpt.sh..."
           ./generate_gpt.sh
           echo "Finished running generate_gpt.sh"
-          echo "Contents of gpt_output directory:"
+          echo "Contents of current directory:"
+          ls -al
+          echo "Contents of gpt_output directory (if exists):"
           ls -al gpt_output || echo "gpt_output directory not found."
 
       # 7. Verify if gpt_output directory exists and contains files
