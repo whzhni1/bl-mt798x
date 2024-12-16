@@ -3,7 +3,7 @@ name: Build GPT Editor
 on:
   push:
     tags:
-      - emmc
+      - 'v*.*.*'  # 仅在推送符合 v*.*.* 格式的标签时触发
   pull_request:
     branches:
       - emmc
@@ -13,24 +13,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout code
+      # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Install Python 2.7
-      - name: Install Python 2.7
+      # 2. Install Python 2.7 and pip
+      - name: Install Python 2.7 and pip
         run: |
           sudo apt-get update
-          sudo apt-get install -y python2
+          sudo apt-get install -y python2 python-pip
           python2 --version
+          pip2 --version
 
-      # 3. Install Python2 dependencies
-      - name: Install Python2 dependencies
-        run: |
-          sudo apt-get install -y python-pip
-          pip2 install argparse
+      # 3. Install Python dependencies
+      - name: Install Python dependencies
+        run: pip2 install argparse
 
-      # 4. Prepare input JSON files (this can be omitted if not necessary)
+      # 4. Create input JSON files
       - name: Prepare input JSON files
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
@@ -44,19 +43,17 @@ jobs:
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: chmod +x generate_gpt.sh
 
-      # 6. Run the script to generate GPT binaries
+      # 6. Run the generate_gpt.sh script to generate GPT binaries
       - name: Generate GPT binaries
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
-          set -x  # 启用命令跟踪
           ./generate_gpt.sh
           echo "Finished running generate_gpt.sh"
           echo "Contents of gpt_output:"
           ls -al gpt_output || echo "No gpt_output directory found"
 
-      # 7. Verify gpt_output directory exists
-      - name: Verify gpt_output directory
-        working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
+      # 7. Verify if gpt_output directory exists and contains files
+      - name: Verify GPT output directory
         run: |
           if [ ! -d "./gpt_output" ]; then
             echo "Build failed: gpt_output directory not found!"
@@ -67,13 +64,13 @@ jobs:
 
       # 8. Zip the GPT binaries
       - name: Zip GPT binaries
-        working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
+          cd atf-20231013-0ea67d76a/tools/dev/gpt_editor
           zip -r gpt_binaries.zip gpt_output/
           echo "Files zipped successfully."
           ls -al gpt_binaries.zip
 
-      # 9. Create GitHub Release
+      # 9. Create GitHub Release (only for tags)
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         id: create_release
@@ -86,12 +83,7 @@ jobs:
           draft: false
           prerelease: false
 
-      # 10. Debug Create GitHub Release (Output upload URL)
-      - name: Debug Create GitHub Release
-        run: |
-          echo "Upload URL: ${{ steps.create_release.outputs.upload_url }}"
-
-      # 11. Upload GPT binaries to Release
+      # 10. Upload the zipped GPT binaries to the release
       - name: Upload GPT binaries to Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-release-asset@v1
