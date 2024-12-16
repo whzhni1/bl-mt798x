@@ -5,31 +5,31 @@ on:
     branches:
       - emmc
     tags:
-      - 'v*.*.*'  # 只在标签推送时创建 Release
+      - 'v*.*.*'  # Only trigger for tag pushes
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # 步骤 1：检出仓库代码
+      # Step 1: Checkout repository code
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 步骤 2：安装 Python 2.7
+      # Step 2: Install Python 2.7
       - name: Install Python 2.7
         run: |
           sudo apt-get update
           sudo apt-get install -y python2
           python2 --version
 
-      # 步骤 3：安装 Python2 依赖（如 argparse）
+      # Step 3: Install Python2 dependencies (e.g., argparse)
       - name: Install Python2 dependencies
         run: |
           sudo apt-get install -y python-pip
           pip2 install argparse
 
-      # 步骤 4：准备输入 JSON 文件
+      # Step 4: Prepare input JSON files
       - name: Prepare input JSON files
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
@@ -38,23 +38,23 @@ jobs:
           echo "Created example input JSON files in mt798x/"
           ls -al mt798x
 
-      # 步骤 5：赋予 generate_gpt.sh 执行权限
+      # Step 5: Make generate_gpt.sh executable
       - name: Make generate_gpt.sh executable
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
           chmod +x generate_gpt.sh
 
-      # 步骤 6：运行 generate_gpt.sh 脚本，并打印详细日志
+      # Step 6: Generate GPT binaries
       - name: Generate GPT binaries
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
-          set -x  # 打印所有执行命令
+          set -x  # Enable command tracing
           ./generate_gpt.sh
           echo "Finished running generate_gpt.sh"
           echo "Contents of gpt_output:"
           ls -al gpt_output || echo "No gpt_output directory found"
 
-      # 步骤 7：验证 gpt_output 目录是否生成
+      # Step 7: Verify gpt_output directory exists
       - name: Verify gpt_output directory
         working-directory: atf-20231013-0ea67d76a/tools/dev/gpt_editor
         run: |
@@ -65,7 +65,7 @@ jobs:
           echo "Generated GPT binaries:"
           ls -al gpt_output
 
-      # 步骤 8：创建 GitHub Release
+      # Step 8: Create GitHub Release (only for tag pushes)
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/create-release@v1
@@ -76,12 +76,8 @@ jobs:
           release_name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
-        id: create_release
-        run: |
-          echo "Creating release for tag ${GITHUB_REF}"
-          echo "Release URL: ${{ steps.create_release.outputs.upload_url }}"
 
-      # 步骤 9：上传 GPT 二进制文件到 GitHub Release
+      # Step 9: Upload GPT binaries to GitHub Release (only for tag pushes)
       - name: Upload GPT binaries to Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-release-asset@v1
@@ -94,3 +90,5 @@ jobs:
           asset_content_type: application/zip
         run: |
           echo "Uploading files to release..."
+          zip -r gpt_binaries.zip gpt_output/
+          echo "Files zipped and ready to be uploaded."
