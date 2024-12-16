@@ -66,14 +66,21 @@ jobs:
           echo "Generated GPT binaries:"
           ls -al gpt_output
 
-      # 步骤 8：上传 GPT 产物
+      # 步骤 8：压缩 gpt_output 目录为 ZIP 文件
+      - name: Zip gpt_output directory
+        run: |
+          cd atf-20231013-0ea67d76a/tools/dev/gpt_editor
+          zip -r gpt_output.zip gpt_output
+          echo "Created gpt_output.zip"
+
+      # 步骤 9：上传 GPT 产物
       - name: Upload GPT Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: gpt_binaries
-          path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output
+          path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output.zip
 
-      # 步骤 9: 创建 Release
+      # 步骤 10: 创建 Release
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -86,11 +93,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 步骤 10: 上传 Release 中的 GPT 二进制文件
+      # 步骤 11: 上传 Release 中的 GPT 二进制文件
       - name: Upload GPT files to release
-        uses: actions/upload-release-asset@v1  # 改为 GitHub 官方上传资源的 Action
+        uses: actions/upload-release-asset@v1  # GitHub 官方上传资源的 Action
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output
+          asset_path: atf-20231013-0ea67d76a/tools/dev/gpt_editor/gpt_output.zip
           asset_name: gpt_output.zip
           asset_content_type: application/zip
